@@ -19,20 +19,56 @@
 
                 let x = canvas.width / 2;
                 let y = canvas.height - 30;
-
                 let dx = 2;
                 let dy = -2;
 
+                const paddleHeight = 10;
+                const paddleWidth = 75;
+                let paddleX = (canvas.width - paddleWidth) / 2;
+
                 const ballRadius = 10;
 
+                let rightPressed = false;
+                let leftPressed = false;
+
                 const drawBall = () => {
-                    dy = checkTopAndBottomCollisions(dy);
-                    dx = checkLeftAndRightCollisions(dx);
                     ctx.beginPath();
                     ctx.arc(x, y, ballRadius, 0, Math.PI*2);
                     ctx.fillStyle = '#0095DD';
                     ctx.fill();
                     ctx.closePath();
+                }
+
+                const drawPaddle = () => {
+                    ctx.beginPath();
+                    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+                    ctx.fillStyle = '#0095DD';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+
+                const keyDownHandler = (e) => {
+                    switch (e.keyCode) {
+                        case 39:
+                            rightPressed = true;
+                            break;
+                        case 37:
+                            leftPressed = true;
+                            break;
+                        default:
+                    }
+                }
+
+                const keyUpHandler = (e) => {
+                    switch (e.keyCode) {
+                        case 39:
+                            rightPressed = false;
+                            break;
+                        case 37:
+                            leftPressed = false;
+                            break;
+                        default:
+                    }
                 }
 
                 const checkTopAndBottomCollisions = (dy) => {
@@ -49,19 +85,36 @@
                     return dx;
                 }
 
-                function draw() {
-                    if (y + dy < 0) {
-                        dy = -dy;
-                    }
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    drawBall();
+                const setBallPosition = () => {
+                    dy = checkTopAndBottomCollisions(dy);
+                    dx = checkLeftAndRightCollisions(dx);
                     x += dx;
                     y += dy;
+                }
+
+                const setPaddlePosition = () => {
+                    if (rightPressed && paddleX + paddleWidth < canvas.width) {
+                        paddleX += 7;
+                    }
+                    if (leftPressed && paddleX > 0) {
+                        paddleX -= 7;
+                    }
+                }
+
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    setBallPosition();
+                    drawBall();
+                    setPaddlePosition();
+                    drawPaddle();
                 }
 
 
 
                 setInterval(draw, 10);
+
+                document.addEventListener('keydown', keyDownHandler, false);
+                document.addEventListener('keyup', keyUpHandler, false);
             })();
         </script>
     </body>
