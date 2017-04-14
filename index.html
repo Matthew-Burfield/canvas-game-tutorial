@@ -10,7 +10,7 @@
     </head>
     <body>
 
-        <canvas id="myCanvas" width="480" height"320"></canvas>
+        <canvas id="myCanvas" width="480" height="320"></canvas>
 
         <script>
             (function() {
@@ -48,6 +48,7 @@
                             bricks[col][row] = {
                                 x: (col * (brickWidth + brickPadding)) + brickOffsetLeft,
                                 y: (row * (brickHeight + brickPadding)) + brickOffsetTop,
+                                status: 1,
                             };
                         }
                     }
@@ -57,13 +58,15 @@
                 const drawBricks = () => {
                     for (col = 0; col < brickColumnCount; col += 1) {
                         for (row = 0; row < brickRowCount; row += 1) {
-                            const brickX = bricks[col][row].x;
-                            const brickY = bricks[col][row].y;
-                            ctx.beginPath();
-                            ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                            ctx.fillStyle = '#0095DD';
-                            ctx.fill();
-                            ctx.closePath();
+                            if (bricks[col][row].status === 1) {
+                                const brickX = bricks[col][row].x;
+                                const brickY = bricks[col][row].y;
+                                ctx.beginPath();
+                                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                                ctx.fillStyle = '#0095DD';
+                                ctx.fill();
+                                ctx.closePath();
+                            }
                         }
                     }
                 }
@@ -108,6 +111,20 @@
                     }
                 }
 
+                const collisionDetection = () => {
+                    for (col = 0; col < brickColumnCount; col += 1) {
+                        for (row = 0; row < brickRowCount; row += 1) {
+                            const b = bricks[col][row];
+                            if (b.status === 1) {
+                                if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                                    dy = -dy;
+                                    b.status = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 const checkTopAndBottomCollisions = (dy) => {
                     if (y + dy < ballRadius) {
                         return -dy;
@@ -145,6 +162,7 @@
 
                 function draw() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    collisionDetection();
                     setBallPosition();
                     drawBall();
                     setPaddlePosition();
